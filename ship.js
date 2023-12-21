@@ -1,21 +1,48 @@
-class shipLogic {
-    constructor(Ship) {
-        super(Ship)
+class ShipLogic {
+    /**
+     * Represents the logic for a ship in a game.
+     * @param {number} length - The length of the ship.
+     */
+    constructor(length) {
+        if (typeof length !== 'number' || length <= 0) {
+            throw new Error('Invalid length. Length must be a positive integer.');
+        }
         this.length = length;
-        this.hits = hits;
-        this.state = state;
+        this.hits = 0;
+        this.state = 'floating';
     }
 
-    hit(ship){
-        return new ship.hits ++
+    /**
+     * Increases the hits of the ship by 1 if the ship is not already sunken.
+     */
+    hit() {
+        if (this.state !== 'sunken') {
+            this.hits++;
+            if (this.isSunken()) {
+                this.state = 'sunken';
+            }
+        }
     }
 
-    introduce() {
-        console.log(`Hello, my ship is ${this.length} long`);
+    /**
+     * Checks if the ship is sunken based on the ratio of hits and length.
+     * Updates the `state` property to 'sunken' if the ship is sunken.
+     * @returns {boolean} - True if the ship is sunken, false otherwise.
+     */
+    isSunken() {
+        if (this.hits >= this.length) {
+            this.state = 'sunken';
+        }
+        return this.hits >= this.length;
     }
+
 }
 
 
 
-export { shipLogic }
+
+module.exports = ShipLogic;
+
+
+
 
