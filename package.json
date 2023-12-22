@@ -1,0 +1,14 @@
+{
+  "name": "battleship-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gameboard.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+
+}
