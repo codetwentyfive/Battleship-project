@@ -1,4 +1,4 @@
-class ShipLogic {
+class Ship {
     /**
      * Represents the logic for a ship in a game.
      * @param {number} length - The length of the ship.
@@ -18,7 +18,7 @@ class ShipLogic {
     hit() {
         if (this.state !== 'sunken') {
             this.hits++;
-            if (this.isSunken()) {
+            if (this.isSunk()) {
                 this.state = 'sunken';
             }
         }
@@ -29,7 +29,7 @@ class ShipLogic {
      * Updates the `state` property to 'sunken' if the ship is sunken.
      * @returns {boolean} - True if the ship is sunken, false otherwise.
      */
-    isSunken() {
+    isSunk() {
         if (this.hits >= this.length) {
             this.state = 'sunken';
         }
@@ -41,7 +41,7 @@ class ShipLogic {
 
 
 
-module.exports = ShipLogic;
+module.exports = Ship;
 
 
 
