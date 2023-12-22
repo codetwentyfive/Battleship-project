@@ -21,6 +21,20 @@ class GameBoard {
     }
 
     /**
+     * Get all coordinates on the game board.
+     * @returns {Array} - An array of all coordinates on the board.
+     */
+    getAllCoordinates() {
+        const allCoordinates = [];
+        for (let x = 0; x < 10; x++) {
+            for (let y = 0; y < 10; y++) {
+                allCoordinates.push({ x, y });
+            }
+        }
+        return allCoordinates;
+    }
+
+    /**
      * Receive an attack at the specified coordinates.
      * @param {number} x - The x-coordinate of the attack.
      * @param {number} y - The y-coordinate of the attack.
