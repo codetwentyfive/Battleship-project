@@ -1,15 +1,47 @@
+import './gameboard.js'
+
 class Player {
-    constructor(name) {
+    constructor(name = 'human') {
         this.name = name;
-        this.hits = 0;
-        this.misses = 0;
+        this.previousMoves = new Set(); // To track previous moves and avoid shooting the same coordinate twice
+        this.allMoves = new Set(); // To store all possible moves
     }
 
-    makeGuess() {
-        const row = prompt("Enter the row (0 to N-1):");
-        const col = prompt("Enter the column (0 to N-1):");
-        return { row: parseInt(row), col: parseInt(col) };
+    attack(gameboard, coordinates) {
+        if (this.isLegalMove(coordinates)) {
+            gameboard.receiveAttack(coordinates);
+            this.previousMoves.add(coordinates);
+        } else {
+            // Handle illegal move by throwing an error with a descriptive message
+            throw new Error(`Illegal move by ${this.name} at coordinates ${coordinates}`);
+        }
     }
 
+    takeTurn(gameboard) {
+        let randomMove = this.getRandomElement(Array.from(this.allMoves));
 
+        while (!this.isLegalMove(randomMove)) {
+            randomMove = this.getRandomElement(Array.from(this.allMoves));
+        }
+
+        this.attack(gameboard, randomMove);
+    }
+
+    isLegalMove(coordinates) {
+        // Check if the move is legal (not previously attacked)
+        return !this.previousMoves.has(JSON.stringify(coordinates));
+    }
+
+    getLegalMoves(gameboard) {
+        // Filter out coordinates that have been previously attacked
+        return Array.from(this.allMoves).filter((move) => !this.previousMoves.has(JSON.stringify(move)));
+    }
+
+    getRandomElement(array) {
+        // Helper function to get a random element from an array
+        const randomIndex = Math.floor(Math.random() * array.length);
+        return array[randomIndex];
+    }
 }
+
+module.exports = Player;
