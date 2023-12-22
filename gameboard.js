@@ -1,116 +1,113 @@
-// Define the size of the game board
-const boardSize = 8;
+import './ship.js';
 
-// Initialize the game board with empty spaces
-let gameBoard = Array.from({ length: boardSize }, () => Array(boardSize).fill(' '));
 
-/**
- * Randomly places ships on a game board.
- * @param {number} numShips - The number of ships to be placed on the game board.
- * @param {array} gameBoard - The game board to place the ships on.
- */
-function placeShips(numShips, gameBoard) {
-    for (let i = 0; i < numShips; i++) {
-        let { shipSize, orientation, x, y } = getRandomShipProperties(gameBoard.length);
+class GameBoard {
+    constructor() {
+        this.ships = [];
+        this.missedAttacks = new Set();
+    }
 
-        let validPlacement = isValidPlacement(x, y, shipSize, orientation, gameBoard);
+    /**
+     * Add a ship to the game board.
+     * @param {number} x - The x-coordinate of the ship's starting position.
+     * @param {number} y - The y-coordinate of the ship's starting position.
+     * @param {number} length - The length of the ship.
+     * @param {string} orientation - The orientation of the ship ('horizontal' or 'vertical').
+     */
+    addShip(x, y, length, orientation) {
+        const ship = new Ship(length);
+        ship.place(x, y, orientation);
+        this.ships.push(ship);
+    }
 
-        while (!validPlacement) {
-            ({ x, y } = getRandomShipProperties(gameBoard.length));
-            validPlacement = isValidPlacement(x, y, shipSize, orientation, gameBoard);
+    /**
+     * Receive an attack at the specified coordinates.
+     * @param {number} x - The x-coordinate of the attack.
+     * @param {number} y - The y-coordinate of the attack.
+     * @returns {boolean} - True if the attack was a hit, false if it was a miss.
+     */
+    receiveAttack(x, y) {
+        if (this.hasAlreadyAttacked(x, y)) {
+            return;
         }
+        let hit = false;
+        for (const ship of this.ships) {
+            if (ship.isHit(x, y)) {
+                ship.hit();
+                hit = true;
+                break;
+            }
+        }
+        if (!hit) {
+            this.missedAttacks.add({ x, y });
+            return false; // Attack was a miss
+        }
+        return true; // Attack was a hit
+    }
 
-        placeShip(x, y, shipSize, orientation, gameBoard);
+    /**
+     * Check if the specified coordinates have already been attacked.
+     * @param {number} x - The x-coordinate to check.
+     * @param {number} y - The y-coordinate to check.
+     * @returns {boolean} - True if the coordinates have already been attacked, false otherwise.
+     */
+    hasAlreadyAttacked(x, y) {
+        return this.missedAttacks.has(JSON.stringify({ x, y }));
+    }
+
+    /**
+     * Get the missed attacks.
+     * @returns {Array} - An array of missed attack coordinates.
+     */
+    getMissedAttacks() {
+        return Array.from(this.missedAttacks);
+    }
+
+    /**
+     * Check if all ships on the game board are sunk.
+     * @returns {boolean} - True if all ships are sunk, false otherwise.
+     */
+    isGameOver() {
+        return this.ships.every((ship) => ship.isSunk());
     }
 }
 
-function getRandomShipProperties(boardSize) {
-    let shipSize = getRandomShipSize(); // Ship size between 2 and 4
-    let orientation = getRandomOrientation();
-
-    let x, y;
-
-    if (orientation === 'horizontal') {
-        x = getRandomCoordinate();
-        y = getRandomCoordinate(boardSize - shipSize + 1);
-    } else {
-        x = getRandomCoordinate(boardSize - shipSize + 1);
-        y = getRandomCoordinate();
+class Ship {
+    constructor(length) {
+        this.length = length;
+        this.hits = Array(length).fill(false);
     }
 
-    return { shipSize, orientation, x, y };
-}
+    place(x, y, orientation) {
+        this.x = x;
+        this.y = y;
+        this.orientation = orientation;
+    }
 
-/**
- * Generates a random ship size between 2 and 4.
- * @returns {number} - Random ship size.
- */
-function getRandomShipSize() {
-    return Math.floor(Math.random() * 3) + 2;
-}
+    isHit(x, y) {
+        if (this.orientation === 'horizontal') {
+            return y === this.y && x >= this.x && x < this.x + this.length;
+        } else if (this.orientation === 'vertical') {
+            return x === this.x && y >= this.y && y < this.y + this.length;
+        }
+        return false;
+    }
 
-/**
- * Generates a random orientation for the ship.
- * @returns {string} - Random orientation ('horizontal' or 'vertical').
- */
-function getRandomOrientation() {
-    return Math.random() < 0.5 ? 'horizontal' : 'vertical';
-}
-
-/**
- * Generates a random coordinate.
- * @param {number} max - The maximum value for the coordinate.
- * @returns {number} - Random coordinate.
- */
-function getRandomCoordinate(max = boardSize) {
-    return Math.floor(Math.random() * max);
-}
-
-/**
- * Checks if the chosen coordinates are valid for placing a ship.
- * @param {number} x - The x-coordinate.
- * @param {number} y - The y-coordinate.
- * @param {number} shipSize - The size of the ship.
- * @param {string} orientation - The orientation of the ship.
- * @returns {boolean} - True if the placement is valid, false otherwise.
- */
-function isValidPlacement(x, y, shipSize, orientation) {
-    for (let j = 0; j < shipSize; j++) {
-        if (orientation === 'horizontal' && gameBoard[x][y + j] !== ' ') {
-            return false;
-        } else if (orientation === 'vertical' && gameBoard[x + j][y] !== ' ') {
-            return false;
+    hit() {
+        const hitIndex = this.getHitIndex();
+        if (hitIndex !== -1) {
+            this.hits[hitIndex] = true;
         }
     }
-    return true;
-}
 
-/**
- * Places the ship on the game board.
- * @param {number} x - The x-coordinate.
- * @param {number} y - The y-coordinate.
- * @param {number} shipSize - The size of the ship.
- * @param {string} orientation - The orientation of the ship.
- */
-function placeShip(x, y, shipSize, orientation) {
-    for (let j = 0; j < shipSize; j++) {
-        if (orientation === 'horizontal') {
-            gameBoard[x][y + j] = 'S';
-        } else {
-            gameBoard[x + j][y] = 'S';
-        }
+    isSunk() {
+        return this.hits.every((hit) => hit);
+    }
+
+    getHitIndex() {
+        return this.hits.findIndex((hit) => !hit);
     }
 }
 
-// Function to print the game board to the console
-function printBoard() {
-    for (let row of gameBoard) {
-        console.log(row.join(' '));
-    }
-}
 
-// Example usage
-placeShips(5);
-printBoard();
-
-module.exports = placeShips;
+module.exports = GameBoard;
