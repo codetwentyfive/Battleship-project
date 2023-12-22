@@ -7,9 +7,9 @@ class Player {
         this.allMoves = new Set(); // To store all possible moves
     }
 
-    attack(gameboard, coordinates) {
+    attack(GameBoard, coordinates) {
         if (this.isLegalMove(coordinates)) {
-            gameboard.receiveAttack(coordinates);
+            GameBoard.receiveAttack(coordinates);
             this.previousMoves.add(coordinates);
         } else {
             // Handle illegal move by throwing an error with a descriptive message
@@ -17,14 +17,14 @@ class Player {
         }
     }
 
-    takeTurn(gameboard) {
+    takeTurn(GameBoard) {
         let randomMove = this.getRandomElement(Array.from(this.allMoves));
 
         while (!this.isLegalMove(randomMove)) {
             randomMove = this.getRandomElement(Array.from(this.allMoves));
         }
 
-        this.attack(gameboard, randomMove);
+        this.attack(GameBoard, randomMove);
     }
 
     isLegalMove(coordinates) {
@@ -32,7 +32,7 @@ class Player {
         return !this.previousMoves.has(JSON.stringify(coordinates));
     }
 
-    getLegalMoves(gameboard) {
+    getLegalMoves(GameBoard) {
         // Filter out coordinates that have been previously attacked
         return Array.from(this.allMoves).filter((move) => !this.previousMoves.has(JSON.stringify(move)));
     }
