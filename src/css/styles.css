@@ -1,0 +1,39 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+}
+
+
+.ship {
+    background-color: #3498db;
+}
+
+.hit {
+    background-color: #e74c3c;
+}
+
+.miss {
+    background-color: #ecf0f1;
+}
+
+
+/* Media Query for mobile responsiveness */
+@media (max-width: 600px) {
+    #game-board {
+        max-width: 100%;
+    }
+}
