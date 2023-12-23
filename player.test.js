@@ -47,3 +47,22 @@ it('should throw an error when attacking an illegal coordinate', () => {
     expect(() => player.attack(gameboard, coordinates)).toThrowError(`Illegal move by ${player.name} at coordinates ${coordinates}`);
 });
 
+//Plyer attacks the same Coordinate twice
+it('should throw an error when attacking the same coordinate twice', () => {
+    // Arrange
+    const gameBoard = new GameBoard();
+    const player = new Player();
+
+    const x = 2;
+    const y = 3;
+
+    // Act
+    // First attack
+    player.attack(gameBoard, { x, y });
+
+    // Assert
+    expect(() => {
+        // Second attack on the same coordinate
+        player.attack(gameBoard, { x, y }).toThrowError();
+    });
+});
