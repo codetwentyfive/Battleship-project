@@ -1,4 +1,4 @@
-import './gameboard.js'
+import './gameboard'
 
 class Player {
     constructor(name = 'human') {
