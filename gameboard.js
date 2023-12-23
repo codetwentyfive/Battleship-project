@@ -1,4 +1,4 @@
-import './ship.js';
+import Ship from './ship.js';
 
 
 class GameBoard {
@@ -7,18 +7,76 @@ class GameBoard {
         this.missedAttacks = new Set();
     }
 
-    /**
-     * Add a ship to the game board.
-     * @param {number} x - The x-coordinate of the ship's starting position.
-     * @param {number} y - The y-coordinate of the ship's starting position.
-     * @param {number} length - The length of the ship.
-     * @param {string} orientation - The orientation of the ship ('horizontal' or 'vertical').
-     */
     addShip(x, y, length, orientation) {
+        if (x < 0 || x >= 10 || y < 0 || y >= 10) {
+            throw new Error("Invalid coordinates. Coordinates must be within the bounds of the game board.");
+        }
+        if (length <= 0 || length > 10) {
+            throw new Error("Invalid ship length");
+        }
         const ship = new Ship(length);
+        if (this.isSpaceOccupied(x, y, length, orientation)) {
+            throw new Error('Space is already occupied by another ship');
+        }
+        ship.place = function (x, y, orientation) {
+            this.x = x;
+            this.y = y;
+            this.orientation = orientation;
+        }
         ship.place(x, y, orientation);
         this.ships.push(ship);
     }
+
+    /**
+     * Check if the specified coordinates have already been attacked.
+     * @param {number} x - The x-coordinate to check.
+     * @param {number} y - The y-coordinate to check.
+     * @returns {boolean} - True if the coordinates have already been attacked, false otherwise.
+     */
+    hasAlreadyAttacked(x, y) {
+        return this.missedAttacks.has(JSON.stringify({ x, y }));
+    }
+
+    /**
+     * Check if the specified space is already occupied by another ship.
+     * @param {number} x - The x-coordinate of the starting position.
+     * @param {number} y - The y-coordinate of the starting position.
+     * @param {number} length - The length of the ship.
+     * @param {string} orientation - The orientation of the ship ('horizontal' or 'vertical').
+     * @returns {boolean} - True if the space is occupied, false otherwise.
+     */
+    isSpaceOccupied(x, y, length, orientation) {
+        if (orientation === 'horizontal') {
+            for (let i = x; i < x + length; i++) {
+                if (this.isOccupied(i, y)) {
+                    return true;
+                }
+            }
+        } else if (orientation === 'vertical') {
+            for (let i = y; i < y + length; i++) {
+                if (this.isOccupied(x, i)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the specified space is occupied by a ship.
+     * @param {number} x - The x-coordinate of the space.
+     * @param {number} y - The y-coordinate of the space.
+     * @returns {boolean} - True if the space is occupied, false otherwise.
+     */
+    isOccupied(x, y) {
+        for (const ship of this.ships) {
+            if (ship.isOccupied(x, y)) {  
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Get all coordinates on the game board.
@@ -60,16 +118,6 @@ class GameBoard {
     }
 
     /**
-     * Check if the specified coordinates have already been attacked.
-     * @param {number} x - The x-coordinate to check.
-     * @param {number} y - The y-coordinate to check.
-     * @returns {boolean} - True if the coordinates have already been attacked, false otherwise.
-     */
-    hasAlreadyAttacked(x, y) {
-        return this.missedAttacks.has(JSON.stringify({ x, y }));
-    }
-
-    /**
      * Get the missed attacks.
      * @returns {Array} - An array of missed attack coordinates.
      */
@@ -85,43 +133,4 @@ class GameBoard {
         return this.ships.every((ship) => ship.isSunk());
     }
 }
-
-class Ship {
-    constructor(length) {
-        this.length = length;
-        this.hits = Array(length).fill(false);
-    }
-
-    place(x, y, orientation) {
-        this.x = x;
-        this.y = y;
-        this.orientation = orientation;
-    }
-
-    isHit(x, y) {
-        if (this.orientation === 'horizontal') {
-            return y === this.y && x >= this.x && x < this.x + this.length;
-        } else if (this.orientation === 'vertical') {
-            return x === this.x && y >= this.y && y < this.y + this.length;
-        }
-        return false;
-    }
-
-    hit() {
-        const hitIndex = this.getHitIndex();
-        if (hitIndex !== -1) {
-            this.hits[hitIndex] = true;
-        }
-    }
-
-    isSunk() {
-        return this.hits.every((hit) => hit);
-    }
-
-    getHitIndex() {
-        return this.hits.findIndex((hit) => !hit);
-    }
-}
-
-
 module.exports = GameBoard;
