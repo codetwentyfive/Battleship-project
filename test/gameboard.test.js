@@ -35,14 +35,14 @@ it('should return an array of objects with x and y properties ranging from 0 to 
 // add a ship to the game board
 it('should add a ship to the game board when valid coordinates and length are provided', () => {
     const gameBoard = new GameBoard();
-    gameBoard.addShip(0, 0, 3, 'horizontal');
+    gameBoard.addShip(0, 0, 'Carrier', 'horizontal');
     expect(gameBoard.ships.length).toBe(1);
 });
 
 // receive an attack and check if it was a hit
 it('should return true when receiving an attack that hits a ship', () => {
     const gameBoard = new GameBoard();
-    gameBoard.addShip(0, 0, 3, 'horizontal');
+    gameBoard.addShip(0, 0, 'Carrier', 'horizontal');
     const result = gameBoard.receiveAttack(1, 0);
     expect(result).toBe(true);
 });
@@ -50,7 +50,7 @@ it('should return true when receiving an attack that hits a ship', () => {
 // receive an attack and check if it was a miss
 it('should return false when receiving an attack that misses all ships', () => {
     const gameBoard = new GameBoard();
-    gameBoard.addShip(0, 0, 3, 'horizontal');
+    gameBoard.addShip(0, 0, 'Patrol Boat', 'horizontal');
     const result = gameBoard.receiveAttack(3, 0);
     expect(result).toBe(false);
 });
