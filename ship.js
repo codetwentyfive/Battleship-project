@@ -36,6 +36,13 @@ class Ship {
         return this.hits >= this.length;
     }
 
+    getState() {
+        if (this.hits >= this.length) {
+            this.state = 'sunken';
+        }
+        return this.state;
+    }
+
 }
 
 
