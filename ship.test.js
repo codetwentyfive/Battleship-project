@@ -10,17 +10,31 @@ it('should return true when the number of hits is equal to the length of the shi
     expect(ship.isSunk()).toBe(true);
 });
 
-// Returns false if the number of hits is less than the length of the ship.
-it('should return false when the number of hits is less than the length of the ship', () => {
+// should return true when all segments of the ship are hit
+it('should return true when all segments of the ship are hit', () => {
+    const ship = new Ship(3);
+    ship.hits = [true, true, true];
+    expect(ship.isSunk()).toBe(true);
+});
+
+
+// should return false when not all segments of the ship are hit
+it('should return false when not all segments of the ship are hit', () => {
     const ship = new Ship(5);
-    ship.hits = 3;
+    ship.hits = [true, false, true, false, false];
     expect(ship.isSunk()).toBe(false);
 });
 
-// Updates the state of the ship to 'sunken' if the number of hits is equal to the length of the ship.
-it('should update the state of the ship to sunken when the number of hits is equal to the length of the ship', () => {
-    const ship = new Ship(4);
-    ship.hits = 4;
-    ship.isSunk();
-    expect(ship.state).toBe('sunken');
+// should return true when the ship has length 1 and is hit
+it('should return true when the ship has length 1 and is hit', () => {
+    const ship = new Ship(1);
+    ship.hits = [true];
+    expect(ship.isSunk()).toBe(true);
+});
+
+// should return true when the ship has length 0 and is not hit
+it('should return true when the ship has length 0 and is not hit', () => {
+    const ship = new Ship(0);
+    ship.hits = [];
+    expect(ship.isSunk()).toBe(true);
 });
