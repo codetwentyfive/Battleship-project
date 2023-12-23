@@ -2,13 +2,14 @@
   "name": "battleship-project",
   "version": "1.0.0",
   "description": "",
-  "main": "gameboard.js",
+  "source": "src/index.html", 
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html --dist-dir dist"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module"
-
 }
