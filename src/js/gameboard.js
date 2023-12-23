@@ -1,28 +1,22 @@
 import Ship from './ship';
 
-
 class GameBoard {
     constructor() {
         this.ships = [];
         this.missedAttacks = new Set();
     }
 
-    addShip(x, y, length, orientation) {
+    addShip(x, y, shipType, orientation) {
         if (x < 0 || x >= 10 || y < 0 || y >= 10) {
             throw new Error("Invalid coordinates. Coordinates must be within the bounds of the game board.");
         }
-        if (length <= 0 || length > 10) {
-            throw new Error("Invalid ship length");
-        }
-        const ship = new Ship(length);
-        if (this.isSpaceOccupied(x, y, length, orientation)) {
+
+        const ship = new Ship(shipType);
+
+        if (this.isSpaceOccupied(x, y, ship.size, orientation)) {
             throw new Error('Space is already occupied by another ship');
         }
-        ship.place = function (x, y, orientation) {
-            this.x = x;
-            this.y = y;
-            this.orientation = orientation;
-        }
+
         ship.place(x, y, orientation);
         this.ships.push(ship);
     }
@@ -70,13 +64,12 @@ class GameBoard {
      */
     isOccupied(x, y) {
         for (const ship of this.ships) {
-            if (ship.isOccupied(x, y)) {  
+            if (ship.isOccupied(x, y)) {
                 return true;
             }
         }
         return false;
     }
-
 
     /**
      * Get all coordinates on the game board.
@@ -133,4 +126,5 @@ class GameBoard {
         return this.ships.every((ship) => ship.isSunk());
     }
 }
+
 module.exports = GameBoard;
