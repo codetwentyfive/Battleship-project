@@ -1,6 +1,4 @@
-// ship.test.js
-
-const Ship = require('./ship');
+const Ship = require('../src/js/ship');
 
 it('should return true when the number of hits is equal to the length of the ship', () => {
     const ship = new Ship(3);

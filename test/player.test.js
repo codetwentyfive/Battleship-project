@@ -1,5 +1,5 @@
-import Player from './player';
-import GameBoard from './gameboard';
+import Player from '../src/js/player';
+import GameBoard from '../src/js/gameboard';
 
 
 // Player can be instantiated with a name parameter

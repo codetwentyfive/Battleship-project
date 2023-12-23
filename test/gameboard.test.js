@@ -1,5 +1,5 @@
-const GameBoard = require('./gameboard.js');
-import './ship.js';
+const GameBoard = require('../src/js/gameboard');
+import '../src/js/ship';
 
 
 // Should return an array of length 100 when called on a new instance of GameBoard.
