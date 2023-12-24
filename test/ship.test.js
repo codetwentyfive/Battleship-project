@@ -1,38 +1,38 @@
-const Ship = require('../src/js/ship');
+import Ship from "../src/js/ship";
 
-it('should return true when the number of hits is equal to the length of the ship', () => {
+// Ship object can be created with a given length
+it('should create a ship object with the given length', () => {
     const ship = new Ship(3);
-    for (let i = 0; i < 3; i++) {
-        ship.hit();
-    }
-    expect(ship.isSunk()).toBe(true);
+    expect(ship.length).toBe(3);
+    expect(ship.hits).toEqual([]);
 });
 
-// should return true when all segments of the ship are hit
-it('should return true when all segments of the ship are hit', () => {
+// Ship object can be hit at a specific position
+it('should hit the ship at the specified position', () => {
     const ship = new Ship(3);
-    ship.hits = [true, true, true];
+    ship.hit(1);
+    expect(ship.hits).toEqual([1]);
+});
+
+// Ship object can be checked if it is sunk
+it('should return true if the ship is sunk', () => {
+    const ship = new Ship(3);
+    ship.hit(0);
+    ship.hit(1);
+    ship.hit(2);
     expect(ship.isSunk()).toBe(true);
 });
 
-
-// should return false when not all segments of the ship are hit
-it('should return false when not all segments of the ship are hit', () => {
-    const ship = new Ship(5);
-    ship.hits = [true, false, true, false, false];
-    expect(ship.isSunk()).toBe(false);
+// Ship object cannot be hit at a negative position
+it('should not hit the ship at a negative position', () => {
+    const ship = new Ship(3);
+    ship.hit(-1);
+    expect(ship.hits).toEqual([]);
 });
 
-// should return true when the ship has length 1 and is hit
-it('should return true when the ship has length 1 and is hit', () => {
-    const ship = new Ship(1);
-    ship.hits = [true];
-    expect(ship.isSunk()).toBe(true);
-});
-
-// should return true when the ship has length 0 and is not hit
-it('should return true when the ship has length 0 and is not hit', () => {
+// Ship object can be created with a length of 0
+it('should create a ship object with a length of 0', () => {
     const ship = new Ship(0);
-    ship.hits = [];
-    expect(ship.isSunk()).toBe(true);
+    expect(ship.length).toBe(0);
+    expect(ship.hits).toEqual([]);
 });

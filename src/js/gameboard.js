@@ -1,130 +1,194 @@
 import Ship from './ship';
 
-class GameBoard {
-    constructor() {
-        this.ships = [];
-        this.missedAttacks = new Set();
+const SIZE = 10;
+
+class Gameboard {
+  constructor() {
+    this.board = [];
+    this.missedShots = [];
+    this.initialize();
+  }
+
+  initialize() {
+    for (let i = 0; i < SIZE; i++) {
+      this.board[i] = [];
+      this.missedShots[i] = [];
+      for (let j = 0; j < SIZE; j++) {
+        this.board[i][j] = null;
+        this.missedShots[i][j] = false;
+      }
+    }
+  }
+
+  placeShip(ship, row, column, isVertical) {
+    if (!this.isPlacementPossible(ship, row, column, isVertical)) return false;
+
+    if (isVertical) {
+      for (let i = 0; i < ship.length; i++) {
+        this.board[row + i][column] = ship;
+      }
+    } else {
+      for (let i = 0; i < ship.length; i++) {
+        this.board[row][column + i] = ship;
+      }
+    }
+    return true;
+  }
+
+  placeShipsRandomly() {
+    if (!this.isEmpty()) return;
+
+    const ships = [];
+    const carrier = new Ship(5);
+    const battleship = new Ship(4);
+    const destroyer = new Ship(3);
+    const submarine = new Ship(3);
+    const patrolBoat = new Ship(2);
+    ships.push(carrier, battleship, destroyer, submarine, patrolBoat);
+
+    let successfulPlacements = 0;
+
+    while (successfulPlacements < 5) {
+      const row = Math.floor(Math.random() * 10);
+      const column = Math.floor(Math.random() * 10);
+      const isVertical = Math.floor(Math.random() * 2) === 1 ? true : false;
+
+      if (this.placeShip(ships[successfulPlacements], row, column, isVertical))
+        successfulPlacements++;
+    }
+  }
+
+  /**
+   * Checks if it is possible to place a ship on the game board at the specified row and column coordinates, in the specified orientation (vertical or horizontal).
+   * 
+   * @param {object} ship - The ship to be placed on the game board.
+   * @param {number} row - The row coordinate where the ship will be placed.
+   * @param {number} column - The column coordinate where the ship will be placed.
+   * @param {boolean} isVertical - Specifies whether the ship will be placed vertically or horizontally.
+   * @returns {boolean} - True if it is possible to place the ship at the specified coordinates and orientation, false otherwise.
+   */
+  isPlacementPossible(ship, row, column, isVertical) {
+    if (row < 0 || row > SIZE - 1 || column < 0 || column > SIZE - 1) return false;
+
+    if (isVertical) {
+      if (row + ship.length > SIZE) return false;
+    } else {
+      if (column + ship.length > SIZE) return false;
     }
 
-    addShip(x, y, shipType, orientation) {
-        if (x < 0 || x >= 10 || y < 0 || y >= 10) {
-            throw new Error("Invalid coordinates. Coordinates must be within the bounds of the game board.");
+    if (isVertical) {
+      for (let i = 0; i < ship.length; i++) {
+        if (this.board[row + i][column]) return false;
+      }
+    } else {
+      for (let i = 0; i < ship.length; i++) {
+        if (this.board[row][column + i]) return false;
+      }
+    }
+
+    if (isVertical) {
+      for (let i = 0; i < ship.length; i++) {
+        for (let x = -1; x <= 1; x++) {
+          for (let y = -1; y <= 1; y++) {
+            if (
+              row + x + i < 0 ||
+              row + x + i >= SIZE ||
+              column + y < 0 ||
+              column + y >= SIZE
+            )
+              continue;
+            if (this.board[row + x + i][column + y]) return false;
+          }
         }
-
-        const ship = new Ship(shipType);
-
-        if (this.isSpaceOccupied(x, y, ship.size, orientation)) {
-            throw new Error('Space is already occupied by another ship');
+      }
+    } else {
+      for (let i = 0; i < ship.length; i++) {
+        for (let x = -1; x <= 1; x++) {
+          for (let y = -1; y <= 1; y++) {
+            if (
+              row + x < 0 ||
+              row + x >= SIZE ||
+              column + y + i < 0 ||
+              column + y + i >= SIZE
+            )
+              continue;
+            if (this.board[row + x][column + y + i]) return false;
+          }
         }
+      }
+    }
+    return true;
+  }
 
-        ship.place(x, y, orientation);
-        this.ships.push(ship);
+  /**
+ * Receives an attack at the specified row and column coordinates.
+ * 
+ * @param {number} row - The row coordinate of the attack.
+ * @param {number} column - The column coordinate of the attack.
+ * @returns {boolean} - Returns true if the attack hits a ship, false otherwise.
+ */
+  receiveAttack(row, column) {
+    if (row < 0 || row >= SIZE || column < 0 || column >= SIZE) {
+      return false;
     }
 
-    /**
-     * Check if the specified coordinates have already been attacked.
-     * @param {number} x - The x-coordinate to check.
-     * @param {number} y - The y-coordinate to check.
-     * @returns {boolean} - True if the coordinates have already been attacked, false otherwise.
-     */
-    hasAlreadyAttacked(x, y) {
-        return this.missedAttacks.has(JSON.stringify({ x, y }));
-    }
+    if (this.board[row][column]) {
+      let hitIndex = 0;
 
-    /**
-     * Check if the specified space is already occupied by another ship.
-     * @param {number} x - The x-coordinate of the starting position.
-     * @param {number} y - The y-coordinate of the starting position.
-     * @param {number} length - The length of the ship.
-     * @param {string} orientation - The orientation of the ship ('horizontal' or 'vertical').
-     * @returns {boolean} - True if the space is occupied, false otherwise.
-     */
-    isSpaceOccupied(x, y, length, orientation) {
-        if (orientation === 'horizontal') {
-            for (let i = x; i < x + length; i++) {
-                if (this.isOccupied(i, y)) {
-                    return true;
-                }
-            }
-        } else if (orientation === 'vertical') {
-            for (let i = y; i < y + length; i++) {
-                if (this.isOccupied(x, i)) {
-                    return true;
-                }
-            }
+      if (column > 0 && this.board[row][column - 1]) {
+        let i = 1;
+        while (column - i >= 0 && this.board[row][column - i]) {
+          hitIndex++;
+          i++;
         }
-        return false;
-    }
-
-    /**
-     * Check if the specified space is occupied by a ship.
-     * @param {number} x - The x-coordinate of the space.
-     * @param {number} y - The y-coordinate of the space.
-     * @returns {boolean} - True if the space is occupied, false otherwise.
-     */
-    isOccupied(x, y) {
-        for (const ship of this.ships) {
-            if (ship.isOccupied(x, y)) {
-                return true;
-            }
+      } else if (row > 0 && this.board[row - 1][column]) {
+        let i = 1;
+        while (row - i >= 0 && this.board[row - i][column]) {
+          hitIndex++;
+          i++;
         }
-        return false;
+      }
+      this.board[row][column].hit(hitIndex);
+      return true;
+    } else {
+      this.missedShots[row][column] = true;
+      return false;
     }
+  }
 
-    /**
-     * Get all coordinates on the game board.
-     * @returns {Array} - An array of all coordinates on the board.
-     */
-    getAllCoordinates() {
-        const allCoordinates = [];
-        for (let x = 0; x < 10; x++) {
-            for (let y = 0; y < 10; y++) {
-                allCoordinates.push({ x, y });
-            }
+  isGameOver() {
+    let isBoardEmpty = true;
+    for (let i = 0; i < SIZE; i++) {
+      for (let j = 0; j < SIZE; j++) {
+        if (this.board[i][j]) {
+          isBoardEmpty = false;
+          if (!this.board[i][j].isSunk()) {
+            return false;
+          }
         }
-        return allCoordinates;
+      }
     }
+    return isBoardEmpty ? false : true;
+  }
 
-    /**
-     * Receive an attack at the specified coordinates.
-     * @param {number} x - The x-coordinate of the attack.
-     * @param {number} y - The y-coordinate of the attack.
-     * @returns {boolean} - True if the attack was a hit, false if it was a miss.
-     */
-    receiveAttack(x, y) {
-        if (this.hasAlreadyAttacked(x, y)) {
-            return;
-        }
-        let hit = false;
-        for (const ship of this.ships) {
-            if (ship.isHit(x, y)) {
-                ship.hit();
-                hit = true;
-                break;
-            }
-        }
-        if (!hit) {
-            this.missedAttacks.add({ x, y });
-            return false; // Attack was a miss
-        }
-        return true; // Attack was a hit
+  isEmpty() {
+    for (let i = 0; i < SIZE; i++) {
+      for (let j = 0; j < SIZE; j++) {
+        if (this.board[i][j] !== null) return false;
+      }
     }
+    return true;
+  }
 
-    /**
-     * Get the missed attacks.
-     * @returns {Array} - An array of missed attack coordinates.
-     */
-    getMissedAttacks() {
-        return Array.from(this.missedAttacks);
+  getEmptyFieldsAmount() {
+    let result = 0;
+    for (let i = 0; i < SIZE; i++) {
+      for (let j = 0; j < SIZE; j++) {
+        if (this.board[i][j] === null) result++;
+      }
     }
-
-    /**
-     * Check if all ships on the game board are sunk.
-     * @returns {boolean} - True if all ships are sunk, false otherwise.
-     */
-    isGameOver() {
-        return this.ships.every((ship) => ship.isSunk());
-    }
+    return result;
+  }
 }
 
-module.exports = GameBoard;
+export default Gameboard;

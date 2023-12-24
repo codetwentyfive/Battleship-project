@@ -1,65 +1,80 @@
-const GameBoard = require('../src/js/gameboard');
-import '../src/js/ship';
+import Gameboard from '../src/js/gameboard';
+import Ship from '../src/js/ship';
 
 
-// Should return an array of length 100 when called on a new instance of GameBoard.
-it('should return an array of length 100 when called on a new instance of GameBoard', () => {
-    const gameBoard = new GameBoard();
-    const result = gameBoard.getAllCoordinates();
-    expect(result).toHaveLength(100);
-});
+    // can place ships on board
+    it('should place ship on board when placement is possible', () => {
+        const gameboard = new Gameboard();
+        const ship = new Ship(3);
+        const row = 0;
+        const column = 0;
+        const isVertical = true;
+  
+        const result = gameboard.placeShip(ship, row, column, isVertical);
+  
+        expect(result).toBe(true);
+        expect(gameboard.board[row][column]).toBe(ship);
+        expect(gameboard.board[row + 1][column]).toBe(ship);
+        expect(gameboard.board[row + 2][column]).toBe(ship);
+      });
+    // can receive attacks on board
+    it('should hit ship when attack is successful', () => {
+        const gameboard = new Gameboard();
+        const ship = new Ship(3);
+        const row = 0;
+        const column = 0;
+        const isVertical = true;
+        gameboard.placeShip(ship, row, column, isVertical);
+  
+        const result = gameboard.receiveAttack(row, column);
+  
+        expect(result).toBe(true);
+        expect(ship.hits).toEqual([0]);
+      });
 
-// Should return an array of objects with x and y properties.
-it('should return an array of objects with x and y properties', () => {
-    const gameBoard = new GameBoard();
-    const result = gameBoard.getAllCoordinates();
-    expect(result).toEqual(expect.arrayContaining([
-        expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) })
-    ]));
-});
+    // can detect when game is over
+    it('should return true when all ships are sunk', () => {
+        const gameboard = new Gameboard();
+        const ship = new Ship(1);
+        const row = 0;
+        const column = 0;
+        const isVertical = true;
+        gameboard.placeShip(ship, row, column, isVertical);
+        gameboard.receiveAttack(row, column);
+  
+        const result = gameboard.isGameOver();
+  
+        expect(result).toBe(true);
+      });
 
+    // can't place ship outside board boundaries
+    it('should not place ship on board when placement is outside boundaries', () => {
+        const gameboard = new Gameboard();
+        const ship = new Ship(3);
+        const row = 9;
+        const column = 9;
+        const isVertical = true;
+  
+        const result = gameboard.placeShip(ship, row, column, isVertical);
+  
+        expect(result).toBe(false);
+      });
 
-// Should return an array of objects with x and y properties ranging from 0 to 9.
-it('should return an array of objects with x and y properties ranging from 0 to 9', () => {
-    const gameBoard = new GameBoard();
-    const result = gameBoard.getAllCoordinates();
-    for (const coordinate of result) {
-        expect(coordinate).toEqual(expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) }));
-        expect(coordinate.x).toBeGreaterThanOrEqual(0);
-        expect(coordinate.x).toBeLessThanOrEqual(9);
-        expect(coordinate.y).toBeGreaterThanOrEqual(0);
-        expect(coordinate.y).toBeLessThanOrEqual(9);
-    }
-});
-
-// add a ship to the game board
-it('should add a ship to the game board when valid coordinates and length are provided', () => {
-    const gameBoard = new GameBoard();
-    gameBoard.addShip(0, 0, 'Carrier', 'horizontal');
-    expect(gameBoard.ships.length).toBe(1);
-});
-
-// receive an attack and check if it was a hit
-it('should return true when receiving an attack that hits a ship', () => {
-    const gameBoard = new GameBoard();
-    gameBoard.addShip(0, 0, 'Carrier', 'horizontal');
-    const result = gameBoard.receiveAttack(1, 0);
-    expect(result).toBe(true);
-});
-
-// receive an attack and check if it was a miss
-it('should return false when receiving an attack that misses all ships', () => {
-    const gameBoard = new GameBoard();
-    gameBoard.addShip(0, 0, 'Patrol Boat', 'horizontal');
-    const result = gameBoard.receiveAttack(3, 0);
-    expect(result).toBe(false);
-});
-
-// receive an attack on an empty game board
-it('should return false when receiving an attack on an empty game board', () => {
-    const gameBoard = new GameBoard();
-    const result = gameBoard.receiveAttack(0, 0);
-    expect(result).toBe(false);
-});
-
+    // can't place ship on top of another ship
+    it('should not place ship on board when placement overlaps with another ship', () => {
+        const gameboard = new Gameboard();
+        const ship1 = new Ship(3);
+        const ship2 = new Ship(2);
+        const row1 = 0;
+        const column1 = 0;
+        const isVertical1 = true;
+        const row2 = 1;
+        const column2 = 0;
+        const isVertical2 = false;
+        gameboard.placeShip(ship1, row1, column1, isVertical1);
+  
+        const result = gameboard.placeShip(ship2, row2, column2, isVertical2);
+  
+        expect(result).toBe(false);
+      });
 
