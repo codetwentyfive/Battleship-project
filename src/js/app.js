@@ -33,8 +33,8 @@ function takeUserAttack(player, enemyBoard) {
     if (row !== undefined && column !== undefined) {
       player.attack(parseInt(row), parseInt(column), enemyBoard);
 
-      renderGameboard(player1Board.board, 'game-board-player');
-      renderGameboard(player2Board.board, 'game-board-enemy');
+      renderGameboard(playerBoard.board, 'game-board-player');
+      renderGameboard(computerBoard.board, 'game-board-enemy');
 
       if (enemyBoard.isGameOver()) {
         container.innerHTML = `${player.name} wins! Game over.`;
@@ -74,20 +74,20 @@ function switchTurns(currentPlayer, nextPlayer, nextPlayerFunction) {
 }
 
 // Create gameboards for both players
-const player1Board = new Gameboard();
-const player2Board = new Gameboard();
+const playerBoard = new Gameboard();
+const computerBoard = new Gameboard();
 
 // Place ships randomly on both gameboards
-player1Board.placeShipsRandomly();
-player2Board.placeShipsRandomly();
+playerBoard.placeShipsRandomly();
+computerBoard.placeShipsRandomly();
 
 // Render the initial game boards
-renderGameboard(player1Board.board, 'game-board-player');
-renderGameboard(player2Board.board, 'game-board-enemy');
+renderGameboard(playerBoard.board, 'game-board-player');
+renderGameboard(computerBoard.board, 'game-board-enemy');
 
 // Create players
 const player = new Player('Player');
 const computer = new Player('Computer');
 
 // Assume player1 starts the game
-takeUserAttack(player, player2Board);
+takeUserAttack(player, computerBoard);
