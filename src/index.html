@@ -9,13 +9,18 @@
   <body>
     <h1>BATTLESHIP</h1>
     <div id="player-info">
-        <!-- Player information goes here -->
+      <!-- Player information goes here -->
     </div>
-    <div id="game-board">
-        <!-- Game board elements go here -->
-    </div>
-    <div id="status">
-        <!-- Game status information goes here -->
+    <div id="gameBoards">
+      <div id="game-board-player" class="game-board">
+        <!-- Player's game board elements go here -->
+      </div>
+      <div id="game-board-enemy" class="game-board">
+        <!-- Enemy's game board elements go here -->
+      </div>
+
+      <div id="status"></div>
+      <!-- Game status information goes here -->
     </div>
     <script type="module" src="./js/app.js"></script>
   </body>

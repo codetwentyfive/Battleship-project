@@ -1,22 +1,44 @@
+/* styles.css */
 body {
     font-family: Arial, sans-serif;
 }
-
-#game-board {
+#gameBoards{
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 5px;
+    grid-template-columns: repeat(2, 1fr);
+}
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    gap: 1px;
+    margin-top: 10px;
 }
 
 .cell {
     width: 30px;
     height: 30px;
     border: 1px solid #ccc;
-    text-align: center;
-    line-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
+#game-board-player {
+    background-color: rgb(191, 230, 173);
+}
+
+#game-board-enemy {
+    background-color: lightgray;
+}
+
+#game-board-player .cell {
+    /* Add specific styling for player's cells if needed */
+}
+
+#game-board-enemy .cell {
+    /* Add specific styling for enemy's cells if needed */
+}
 
 .ship {
     background-color: #3498db;
@@ -30,10 +52,14 @@ body {
     background-color: #ecf0f1;
 }
 
-
-/* Media Query for mobile responsiveness */
+/* Media query for mobile responsiveness */
 @media (max-width: 600px) {
-    #game-board {
-        max-width: 100%;
+    #gameBoards {
+      grid-template-columns: 1fr;
     }
-}
+  
+    #game-board-player,
+    #game-board-enemy {
+      height: 300px; /* Adjust the height as needed for mobile */
+    }
+  }
